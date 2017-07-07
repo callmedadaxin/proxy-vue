@@ -1,0 +1,30 @@
+{
+  "name": "proxy-vue",
+  "version": "1.0.0",
+  "description": "es6新特性实现vue特性",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "start": "webpack-dev-server --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/callmedadaxin/proxy-vue.git"
+  },
+  "author": "athon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/callmedadaxin/proxy-vue/issues"
+  },
+  "homepage": "https://github.com/callmedadaxin/proxy-vue#readme",
+  "devDependencies": {
+    "eventsource-polyfill": "^0.9.6",
+    "express": "^4.15.3",
+    "html-webpack-plugin": "^2.29.0",
+    "webpack": "^3.0.0",
+    "webpack-dev-middleware": "^1.11.0",
+    "webpack-dev-server": "^2.5.0",
+    "webpack-hot-middleware": "^2.18.2"
+  }
+}
