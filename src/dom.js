@@ -1,36 +1,73 @@
 import { hasProperty } from './util.js'
 
-/**
- * 简单的dom操作
- */
-export const dom = new Proxy({}, {
-  get(target, tagName) {
+class Dom {
+  constructor () {
+    return new Proxy({}, {
+      get: this._getDom.bind(this)
+    })
+  }
+
+  _getDom (target, tagName) {
     return (attrs = {}, ...childrens) => {
-      const elem = document.createElement(tagName)
+      this._elem = document.createElement(tagName)
+      this._attrs = attrs
+      this._childrens = childrens
+      this._bindAttrs()
+      this._addChildrens()
 
-      // 添加attr
-      for (let attr in attrs) {
-        if (hasProperty(attrs, attr)) {
-
-          // 事件绑定
-          if (attr.indexOf('@') === 0) {
-            // TODO 参数验证
-            // TODO 绑定参数
-            elem.addEventListener(attr.substr(1), attrs[attr], false)
-          } else {
-            elem.setAttribute(attr, attrs[attr])
-          }
-        }
-      }
-
-      // 渲染字节点
-      childrens.forEach(children => {
-        const child = typeof children === 'string' ? document.createTextNode(children) : children
-
-        elem.appendChild(child)
-      })
-      
-      return elem
+      return this._elem
     }
   }
-})
+
+  /**
+   * 属性
+   * @return {[type]} [description]
+   */
+  _bindAttrs () {
+    const { attrs, _elem } = this
+
+    for (let attr in attrs) {
+      if (hasProperty(attrs, attr)) {
+
+        // 事件绑定
+        if (attr.indexOf('@') === 0) {
+          this._bindEvents(attr)
+        } else if (attr.indexOf('$') === 0) {
+          this.__bindDirectives(attr)
+        } else {
+          _elem.setAttribute(attr, attrs[attr])
+        }
+      }
+    }
+  }
+
+  /**
+   * 指令
+   * @return {[type]} [description]
+   */
+  _bindDirectives () {
+
+  }
+
+  /**
+   * 事件绑定
+   * @return {[type]} [description]
+   */
+  _bindEvents (attr) {
+    this._elem.addEventListener(attr.substr(1), attrs[attr], false)
+  }
+
+  /**
+   * 渲染子节点
+   */
+  _addChildrens () {
+    const { _childrens, _elem } = this
+    
+    _childrens.forEach(children => {
+      const child = typeof children === 'string' ? document.createTextNode(children) : children
+      _elem.appendChild(child)
+    })
+  }
+}
+
+export default new Dom()

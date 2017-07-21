@@ -1,5 +1,5 @@
 import Vue from './vue.js'
-import { dom } from './dom.js'
+import dom from './dom.js'
 
 const vm = new Vue({
   el: 'body',
