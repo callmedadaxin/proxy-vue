@@ -24,10 +24,10 @@ class Dom {
    * @return {[type]} [description]
    */
   _bindAttrs () {
-    const { attrs, _elem } = this
+    const { _attrs, _elem } = this
 
-    for (let attr in attrs) {
-      if (hasProperty(attrs, attr)) {
+    for (let attr in _attrs) {
+      if (hasProperty(_attrs, attr)) {
 
         // 事件绑定
         if (attr.indexOf('@') === 0) {
@@ -35,7 +35,7 @@ class Dom {
         } else if (attr.indexOf('$') === 0) {
           this.__bindDirectives(attr)
         } else {
-          _elem.setAttribute(attr, attrs[attr])
+          _elem.setAttribute(attr, _attrs[attr])
         }
       }
     }
@@ -45,8 +45,11 @@ class Dom {
    * 指令
    * @return {[type]} [description]
    */
-  _bindDirectives () {
+  _bindDirectives (attr) {
+    const { attrs, _elem } = this
 
+    // TODO 将绑定directives单独抽离，
+    // 这样可以在其中访问到vm实例，并进行后续操作
   }
 
   /**

@@ -9,7 +9,14 @@ const vm = new Vue({
     }
   },
   render () {
-    return dom.div({}, dom.p({}, 'test'), dom.a({}, this.msg))
+    return dom.div({
+      class: 'test'
+    },
+      dom.p({}, 'test'),
+      dom.a({
+        href: 'https://www.baidu.com'
+      }, this.msg)
+    )
   }
 })
 
