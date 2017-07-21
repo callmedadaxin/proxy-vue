@@ -20,6 +20,10 @@ export default class Vue {
     this._vm = createData(this, this.appendDom.bind(this))
   }
 
+  /**
+   * render函数
+   * 后续需要进行diff操作，不整个更新dom
+   */
   appendDom () {
     const { render, el } = this._config
     const targetEl = document.querySelector(el)
