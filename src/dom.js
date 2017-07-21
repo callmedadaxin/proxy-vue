@@ -3,7 +3,7 @@ import { hasProperty } from './util.js'
 /**
  * 简单的dom操作
  */
-export default const dom = new Proxy({}, {
+export const dom = new Proxy({}, {
   get(target, tagName) {
     return (attrs = {}, ...childrens) => {
       const elem = document.createElement(tagName)
@@ -25,7 +25,7 @@ export default const dom = new Proxy({}, {
 
       // 渲染字节点
       childrens.forEach(children => {
-        const child = typeof child === 'string' ? document.createTextNode(children) : children
+        const child = typeof children === 'string' ? document.createTextNode(children) : children
 
         elem.appendChild(child)
       })

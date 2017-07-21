@@ -1,11 +1,10 @@
 /**
  * 简单实现data的读写监听
  */
-
-export default obj => {
+export default (obj, fn) => {
   let queuedObservers = new Set()
 
-  return new Proxy(obj, {
+  const observable = new Proxy(obj, {
     get (target, prop, receiver) {
       console.log(`get property ${prop}`)
       return Reflect.get(target, prop, receiver)
@@ -21,4 +20,10 @@ export default obj => {
       return result
     }
   })
+
+  const observe = fn => queuedObservers.add(fn)
+
+  observe(fn)
+
+  return observable
 }

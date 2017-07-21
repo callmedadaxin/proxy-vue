@@ -1,8 +1,20 @@
-import createData from './data.js'
+import Vue from './vue.js'
+import { dom } from './dom.js'
 
-var obj = createData({
-  a: 1
+const vm = new Vue({
+  el: 'body',
+  data () {
+    return {
+      msg: 'hello world'
+    }
+  },
+  render () {
+    return dom.div({}, dom.p({}, 'test'), dom.a({}, this.msg))
+  }
 })
 
-obj.a = 2
-console.log(obj.a)
+console.log(vm.msg)
+
+setInterval(_ => {
+  vm.msg = 'hello world =>>>' + new Date()
+}, 1000)
