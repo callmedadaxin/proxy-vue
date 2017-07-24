@@ -14,7 +14,7 @@ export default (obj, fn) => {
       console.log(`set property ${prop}: ${value}`)
       const result = Reflect.set(target, prop, value)
       queuedObservers.forEach(observer => {
-        observer()
+        observer(value)
       })
 
       return result

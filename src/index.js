@@ -1,5 +1,17 @@
 import Vue from './vue.js'
-import dom from './dom.js'
+
+Vue.directive('model', {
+  update (el, binding) {
+    el.value = binding.value
+
+    el.addEventListener('input', e => {
+      console.log(binding)
+      binding.value = e.target.value
+    })
+
+    el.focus()
+  }
+})
 
 const vm = new Vue({
   el: 'body',
@@ -9,19 +21,20 @@ const vm = new Vue({
     }
   },
   render () {
-    return dom.div({
+    return (dom) => dom.div({
       class: 'test'
     },
-      dom.p({}, 'test'),
-      dom.a({
-        href: 'https://www.baidu.com'
-      }, this.msg)
+      dom.p({
+        '@click': (e) => alert('you click this p node!')
+      }, this.msg),
+      dom.input({
+        '$model': 'msg',
+        type: 'text'
+      })
     )
   }
 })
 
-console.log(vm.msg)
-
-setInterval(_ => {
-  vm.msg = 'hello world =>>>' + new Date()
-}, 1000)
+// setInterval(_ => {
+//   vm.msg = 'hello world =>>>' + new Date()
+// }, 1000)

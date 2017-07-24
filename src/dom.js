@@ -1,7 +1,11 @@
 import { hasProperty } from './util.js'
+import Vue from './vue.js'
 
-class Dom {
-  constructor () {
+export default class Dom {
+  constructor (vm) {
+    // 确定每次节点都能访问到vm实例
+    this._vm = vm
+
     return new Proxy({}, {
       get: this._getDom.bind(this)
     })
@@ -33,7 +37,7 @@ class Dom {
         if (attr.indexOf('@') === 0) {
           this._bindEvents(attr)
         } else if (attr.indexOf('$') === 0) {
-          this.__bindDirectives(attr)
+          this._bindDirectives(attr)
         } else {
           _elem.setAttribute(attr, _attrs[attr])
         }
@@ -46,10 +50,14 @@ class Dom {
    * @return {[type]} [description]
    */
   _bindDirectives (attr) {
-    const { attrs, _elem } = this
+    const { _attrs, _elem, _vm } = this
 
-    // TODO 将绑定directives单独抽离，
-    // 这样可以在其中访问到vm实例，并进行后续操作
+    // 绑定指令
+    const directive = Vue._directors.get(attr)
+    directive.call(this, this._elem, {
+      name: attr.substr(1),
+      value: _attrs[attr]
+    }, _vm)
   }
 
   /**
@@ -57,7 +65,8 @@ class Dom {
    * @return {[type]} [description]
    */
   _bindEvents (attr) {
-    this._elem.addEventListener(attr.substr(1), attrs[attr], false)
+    // TODO event decorator
+    this._elem.addEventListener(attr.substr(1), this._attrs[attr], false)
   }
 
   /**
@@ -72,5 +81,3 @@ class Dom {
     })
   }
 }
-
-export default new Dom()
