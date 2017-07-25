@@ -23,4 +23,3 @@ export default (name, options) => {
 
   Vue._directors.set(`$${name}`, cb)
 }
-
