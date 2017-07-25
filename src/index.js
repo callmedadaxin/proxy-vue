@@ -1,15 +1,20 @@
 import Vue from './vue.js'
 
 Vue.directive('model', {
-  update (el, binding) {
+  update (el, binding, node, oldNode) {
     el.value = binding.value
 
     el.addEventListener('input', e => {
-      console.log(binding)
       binding.value = e.target.value
+
+      // 更新dom后，保持focus状态
+      // this._focus = true
     })
 
-    el.focus()
+    // if (this._focus) {
+    //   console.log(1111)
+    //   el.focus()
+    // }
   }
 })
 

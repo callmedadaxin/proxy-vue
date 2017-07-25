@@ -18,7 +18,7 @@ export default (name, options) => {
         vm[value] = val
       })
     }
-    update && update(el, binding)
+    update && update.call(options, el, binding, vm)
   }
 
   Vue._directors.set(`$${name}`, cb)

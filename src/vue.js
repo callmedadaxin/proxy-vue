@@ -5,6 +5,7 @@ import Dom from './dom.js'
 class Vue {
   constructor(config) {
     this._config = config
+    this._ticks = []
     // 用来存储指令
     this.initData(config.data)
     this.bindVM()
@@ -34,9 +35,14 @@ class Vue {
 
     // 为节点渲染绑定vm
     const dom = new Dom(this._vm)
+    const result = renderDom(dom)
 
-    targetEl.innerHTML = ''
-    targetEl.appendChild(renderDom(dom))
+    // 替换节点
+    targetEl.replaceChild(result, this._oldDom || targetEl.childNodes[0])
+    this._oldDom = result
+
+    // 出发nextTick的回调
+    this._triggerTicks()
   }
 
   /**
@@ -51,6 +57,26 @@ class Vue {
         _config[key] = val.bind(this._vm)
       }
     }
+  }
+
+  /**
+   * 添加dom更新后的回调
+   */
+  nextTick (fn) {
+    this._ticks.push(fn)
+  }
+
+  /**
+   * 执行dom更新后的回调
+   */
+  _triggerTicks () {
+    setTimeout(_ => {
+      this._ticks.forEach(fn => {
+        typeof(fn) === 'function' && fn()
+      })
+
+      this._ticks = []
+    }, 0)
   }
 }
 

@@ -6,12 +6,10 @@ export default (obj, fn) => {
 
   const observable = new Proxy(obj, {
     get (target, prop, receiver) {
-      console.log(`get property ${prop}`)
       return Reflect.get(target, prop, receiver)
     },
 
     set (target, prop, value) {
-      console.log(`set property ${prop}: ${value}`)
       const result = Reflect.set(target, prop, value)
       queuedObservers.forEach(observer => {
         observer(value)
