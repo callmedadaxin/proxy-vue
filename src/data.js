@@ -1,27 +1,41 @@
 /**
  * 简单实现data的读写监听
  */
-export default (obj, fn) => {
-  let queuedObservers = new Set()
+export default class Observer {
+  constructor() {
+    this._queuedObservers = new Set()
+  }
 
-  const observable = new Proxy(obj, {
-    get (target, prop, receiver) {
-      return Reflect.get(target, prop, receiver)
-    },
+  watch (obj) {
+    return new Proxy(obj, {
+      get: (target, prop, receiver) => {
+        return Reflect.get(target, prop, receiver)
+      },
 
-    set (target, prop, value) {
-      const result = Reflect.set(target, prop, value)
-      queuedObservers.forEach(observer => {
-        observer(value)
-      })
+      set: (target, prop, value) => {
+        const oldValue = Reflect.get(target, prop)
+        const result = Reflect.set(target, prop, value)
+        
+        this._notify(value, oldValue)
 
-      return result
-    }
-  })
+        return result
+      }
+    })
+  }
 
-  const observe = fn => queuedObservers.add(fn)
+  /**
+   * 添加订阅
+   */
+  addWatcher (fn) {
+    this._queuedObservers.add(fn)
+  }
 
-  observe(fn)
-
-  return observable
+  /**
+   * 触发订阅
+   */
+  _notify (value, oldValue) {
+    this._queuedObservers.forEach(observer => {
+      observer(value, oldValue)
+    })
+  }
 }

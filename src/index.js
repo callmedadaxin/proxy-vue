@@ -27,8 +27,8 @@ const vm = new Vue({
       msg: 'hello world'
     }
   },
-  render () {
-    return (dom) => dom.div({
+  render (dom) {
+    return dom.div({
       class: 'test'
     },
       dom.p({

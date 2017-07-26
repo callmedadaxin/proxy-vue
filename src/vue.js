@@ -1,4 +1,4 @@
-import createData from './data.js'
+import Observer from './data.js'
 import directive from './directive.js'
 import Dom from './dom.js'
 
@@ -20,8 +20,10 @@ class Vue {
    * @return {[type]}      [description]
    */
   initData (data) {
-    Object.assign(this, data())
-    this._vm = createData(this, this.appendDom.bind(this))
+    const watcher = new Observer()
+    
+    this._vm = watcher.watch(Object.assign(this, data()))
+    watcher.addWatcher(this.appendDom.bind(this))
   }
 
   /**
@@ -31,11 +33,10 @@ class Vue {
   appendDom () {
     const { render, el } = this._config
     const targetEl = document.querySelector(el)
-    const renderDom = render()
 
     // 为节点渲染绑定vm
     const dom = new Dom(this._vm)
-    const result = renderDom(dom)
+    const result = render(dom)
 
     // 替换节点
     targetEl.replaceChild(result, this._oldDom || targetEl.childNodes[0])

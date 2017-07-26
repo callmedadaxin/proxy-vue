@@ -2,6 +2,7 @@
 
 > 尝试使用es6新特性，自己来实现一个mvvm及vue的各种特性。
 > 相关代码放在[github](https://github.com/callmedadaxin/proxy-vue)，会持续更新，欢迎赏个star。
+> 本篇文章为系列文章的第一篇，会比较容易理解，后续会持续更新后面的记录。
 
 ## 最简单的watcher
 从开始接触Vue开始，我们便对它的“数据响应”赞叹不绝，那么我们首先，来实现一个最简单的watcher，来监听数据，以进行对应的操作，类似后续会涉及的dom操作等。
@@ -35,6 +36,10 @@ let obj = watcher({ a: 1 }, (val, oldVal) => {
   console.log('old =>> ', oldVal)
   console.log('new =>> ', val)
 })
+
+obj.a = 2
+// old =>> , 1
+// new =>> , 2
 ```
 
 ## 简单的Dom操作
@@ -65,7 +70,7 @@ const dom = new Proxy({}, {
 })
 ```
 
-也就是说，我们为dom的各属性进行监听，当访问对于的节点时，我们创建并且为他添加各种属性等：
+也就是说，我们为dom的各属性进行监听，当访问对应的节点时，我们创建并且为他添加各种属性等：
 
 ```
 dom.div(
@@ -149,9 +154,7 @@ _initData (data) {
 在这里我们需要注意两点：
 
 1. 我们的data参数为一个function
-这个原因在vue官方文档已经说过，当我们直接使用对象的时候，不同的实例间会共享同一个对象，导致出现对一个组件进行修改，另一个组件也进行修改的问题。
-
-具体可以查看[data-必须是函数](https://cn.vuejs.org/v2/guide/components.html#data-必须是函数)
+这个原因在vue官方文档已经说过，当我们直接使用对象的时候，不同的实例间会共享同一个对象，导致出现对一个组件进行修改，另一个组件也进行修改的问题。具体可以查看[data-必须是函数](https://cn.vuejs.org/v2/guide/components.html#data-必须是函数)
 
 2. 我们返回的是this._vm而不是this
 我们这里做了两步操作，首先将this与data进行合并，再将整个对象进行监听,并赋值到_vm属性上。
@@ -171,7 +174,7 @@ targetEl.appendChild(renderDom)
 ```
 
 ### 绑定this
-我们会发现，我们在config的render函数中，使用了this.msg来访问data的msg属性，因此我们需要实现在各组件中，通过this可以访问到本实例的特性。我猜你已经想到了，我们可以使用bing,call和apply来实现它：
+我们会发现，我们在config的render函数中，使用了this.msg来访问data的msg属性，因此我们需要实现在各组件中，通过this可以访问到本实例的特性。我猜你已经想到了，我们可以使用bind,call和apply来实现它：
 
 ```
 /**
@@ -223,6 +226,7 @@ setInterval(_ => {
 ```
 
 结果:
+
 ![结果](http://oowxefv5q.bkt.clouddn.com/blog/mvvm/W.gif)
 
 最基本的功能已经实现啦！
