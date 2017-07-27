@@ -1,3 +1,4 @@
+import { isObject } from './util.js'
 /**
  * 简单实现data的读写监听
  */
@@ -7,6 +8,14 @@ export default class Observer {
   }
 
   watch (obj) {
+    if (!isObject(obj)) {
+      return obj
+    }
+
+    Object.keys(obj).forEach(key => {
+      obj[key] = this.watch(obj[key])
+    })
+
     return new Proxy(obj, {
       get: (target, prop, receiver) => {
         return Reflect.get(target, prop, receiver)
@@ -14,11 +23,14 @@ export default class Observer {
 
       set: (target, prop, value) => {
         const oldValue = Reflect.get(target, prop)
-        const result = Reflect.set(target, prop, value)
-        
+
+        // 重新监听新的对象
+        target[prop] = this.watch(value)
+
+        // 触发订阅
         this._notify(value, oldValue)
 
-        return result
+        return true
       }
     })
   }

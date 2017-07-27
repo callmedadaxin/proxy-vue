@@ -24,7 +24,10 @@ const vm = new Vue({
   el: 'body',
   data () {
     return {
-      msg: 'hello world'
+      msg: 'hello world',
+      test: {
+        a: 1
+      }
     }
   },
   render (dom) {

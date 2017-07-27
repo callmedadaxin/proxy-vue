@@ -22,8 +22,22 @@ class Vue {
   initData (data) {
     const watcher = new Observer()
     
-    this._vm = watcher.watch(Object.assign(this, data()))
+    this._data = watcher.watch(data())
     watcher.addWatcher(this.appendDom.bind(this))
+
+    this._vm = new Proxy(this, {
+      get: (target, prop, receiver) => {
+        return this[prop] || this._data[prop]
+      },
+
+      set: (target, prop, value) => {
+        if (!this[prop]) {
+          return Reflect.set(this._data, prop, value)
+        }
+
+        return Reflect.set(target, prop, value)
+      }
+    })
   }
 
   /**
@@ -37,7 +51,6 @@ class Vue {
     // 为节点渲染绑定vm
     const dom = new Dom(this._vm)
     const result = render(dom)
-
     // 替换节点
     targetEl.replaceChild(result, this._oldDom || targetEl.childNodes[0])
     this._oldDom = result
