@@ -28,7 +28,8 @@ const vm = new Vue({
       test: {
         a: 1
       },
-      a: 'ssss'
+      a: 'ssss',
+      arr: [1, 2, 3]
     }
   },
   render (dom) {
@@ -52,6 +53,14 @@ vm.test = { a: 3 }
 vm.test.d = 4
 vm.a = 'dddd'
 
+vm.arr[1] = 'sdfsdf'
+vm.arr.push(1)
+console.log('splice=>>>>>')
+vm.arr.splice(0, 1, 2)
+console.log('pop=>>>>>')
+vm.arr.pop()
+console.log('reverse=>>>>>')
+vm.arr.reverse()
 // setInterval(_ => {
 //   vm.msg = 'hello world =>>>' + new Date()
 // }, 1000)

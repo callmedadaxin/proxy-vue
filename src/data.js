@@ -88,6 +88,8 @@ export default class Observer {
           target[prop] = this.watch(baseObj[prop], opt, baseObj[prop])
         }
 
+        console.log('set', prop, value)
+
         // 触发订阅
         dep.notify(prop, value, oldValue)
 
