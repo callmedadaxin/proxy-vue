@@ -7,9 +7,10 @@ class Vue {
     this._config = config
     this._ticks = []
     // 用来存储指令
-    this.initData(config.data)
-    this.bindVM()
-    this.appendDom()
+    this._initData(config.data)
+    this._initVM()
+    this._bindVM()
+    this._appendDom()
 
     return this._vm
   }
@@ -19,12 +20,17 @@ class Vue {
    * @param  {[type]} data [description]
    * @return {[type]}      [description]
    */
-  initData (data) {
+  _initData (data) {
     const watcher = new Observer()
     
     this._data = watcher.watch(data(), { deep: true })
-    watcher.addWatcher(this.appendDom.bind(this))
+    watcher.addWatcher(this._appendDom.bind(this))
+  }
 
+  /**
+   * 将_vm与data进行绑定，访问_vm时，可直接访问到data上的属性
+   */
+  _initVM () {
     this._vm = new Proxy(this, {
       get: (target, prop, receiver) => {
         return this[prop] || this._data[prop]
@@ -44,7 +50,7 @@ class Vue {
    * render函数
    * 后续需要进行diff操作，不整个更新dom
    */
-  appendDom () {
+  _appendDom () {
     const { render, el } = this._config
     const targetEl = document.querySelector(el)
 
@@ -62,7 +68,7 @@ class Vue {
   /**
    * 为所有的函数绑定this
    */
-  bindVM () {
+  _bindVM () {
     const { _config } = this
 
     for(let key of Object.keys(_config)) {
