@@ -40,7 +40,8 @@ const vm = new Vue({
       dom.input({
         '$model': 'msg',
         type: 'text'
-      })
+      }),
+      this.test.a.toString()
     )
   }
 })

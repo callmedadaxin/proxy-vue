@@ -7,14 +7,18 @@ export default class Observer {
     this._queuedObservers = new Set()
   }
 
-  watch (obj) {
+  watch (obj, opt = {}) {
+    const { deep = false } = opt
+
     if (!isObject(obj)) {
       return obj
     }
 
-    Object.keys(obj).forEach(key => {
-      obj[key] = this.watch(obj[key])
-    })
+    if (deep) {
+      Object.keys(obj).forEach(key => {
+        obj[key] = this.watch(obj[key], opt)
+      })
+    }
 
     return new Proxy(obj, {
       get: (target, prop, receiver) => {
@@ -25,7 +29,7 @@ export default class Observer {
         const oldValue = Reflect.get(target, prop)
 
         // 重新监听新的对象
-        target[prop] = this.watch(value)
+        deep ? target[prop] = this.watch(value, opt) : ''
 
         // 触发订阅
         this._notify(value, oldValue)

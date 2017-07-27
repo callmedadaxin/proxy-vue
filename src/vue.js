@@ -22,7 +22,7 @@ class Vue {
   initData (data) {
     const watcher = new Observer()
     
-    this._data = watcher.watch(data())
+    this._data = watcher.watch(data(), { deep: true })
     watcher.addWatcher(this.appendDom.bind(this))
 
     this._vm = new Proxy(this, {
