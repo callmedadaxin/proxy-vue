@@ -27,10 +27,12 @@ const vm = new Vue({
       msg: 'hello world',
       test: {
         a: 1
-      }
+      },
+      a: 'ssss'
     }
   },
   render (dom) {
+    console.log('render')
     return dom.div({
       class: 'test'
     },
@@ -45,6 +47,10 @@ const vm = new Vue({
     )
   }
 })
+
+vm.test = { a: 3 }
+vm.test.d = 4
+vm.a = 'dddd'
 
 // setInterval(_ => {
 //   vm.msg = 'hello world =>>>' + new Date()
