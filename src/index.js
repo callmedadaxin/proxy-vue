@@ -34,6 +34,7 @@ const vm = new Vue({
   },
   render (dom) {
     console.log('render')
+
     return dom.div({
       class: 'test'
     },
@@ -44,23 +45,28 @@ const vm = new Vue({
         '$model': 'msg',
         type: 'text'
       }),
-      this.test.a.toString()
+      this.a.toString()
     )
   }
 })
 
-vm.test = { a: 3 }
-vm.test.d = 4
-vm.a = 'dddd'
+// vm.test = { a: 3 }
+// vm.test.d = 4
+vm.a = 1
+vm.a = 2
+vm.a = 3
+vm.a = 4
+vm.a = 5
+vm.msg = 'ssssss'
 
-vm.arr[1] = 'sdfsdf'
-vm.arr.push(1)
-console.log('splice=>>>>>')
-vm.arr.splice(0, 1, 2)
-console.log('pop=>>>>>')
-vm.arr.pop()
-console.log('reverse=>>>>>')
-vm.arr.reverse()
+// vm.arr[1] = 'sdfsdf'
+// vm.arr.push(1)
+// console.log('splice=>>>>>')
+// vm.arr.splice(0, 1, 2)
+// console.log('pop=>>>>>')
+// vm.arr.pop()
+// console.log('reverse=>>>>>')
+// vm.arr.reverse()
 // setInterval(_ => {
 //   vm.msg = 'hello world =>>>' + new Date()
 // }, 1000)

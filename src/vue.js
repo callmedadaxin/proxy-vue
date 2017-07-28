@@ -100,7 +100,6 @@ class Vue {
   }
 }
 
-
 Vue._directors = new Map()
 Vue.directive = directive
 
