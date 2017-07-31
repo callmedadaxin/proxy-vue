@@ -27,7 +27,6 @@ class Dep {
   notify (prop, oldValue, getValue) {
     // 仅触发被订阅的prop
     this._collections.has(prop) && this._observers.forEach(observer => {
-      
       pushQueue(observer, {
         prop,
         oldValue,
@@ -54,10 +53,10 @@ export default class Observer {
    * 暴露对外的watch函数，将对象变为Proxy,并监听set事件
    * @param  {Object} obj     转换对象
    * @param  {Object} opt     options
-   * @param  {Object} baseObj 缓存的纯净对象
+   * @param  {Object}  缓存的纯净对象
    * @return {Proxy}         具有监听的Proxy对象
    */
-  watch (obj, opt = {}, baseObj = obj) {
+  watch (obj, opt = {}) {
     const { deep = false } = opt
 
     if (!isObject(obj)) {
@@ -67,11 +66,11 @@ export default class Observer {
     // 深度监听
     if (deep) {
       Object.keys(obj).forEach(key => {
-        obj[key] = this.watch(baseObj[key], opt, baseObj[key])
+        obj[key] = this.watch(obj[key], opt)
       })
     }
 
-    return this._defineReactive(obj, opt, obj)
+    return this._defineReactive(obj, opt)
   }
 
   /**
@@ -95,33 +94,24 @@ export default class Observer {
    * 将对象转为Proxy对象
    * @param  {Object} obj     转换对象
    * @param  {Object} opt     options
-   * @param  {Object} baseObj 缓存的纯净对象
+   * @param  {Object}  缓存的纯净对象
    * @return {Proxy}         具有监听的Proxy对象
    */
-  _defineReactive(obj, opt, baseObj) {
+  _defineReactive(obj, opt) {
     const dep = new Dep(this._queuedObservers)
 
     return new Proxy(obj, {
       get: (target, prop, receiver) => {
         // 为每个属性订阅自己的事件
-        dep.pub(prop, target[prop])
+        dep.pub(prop)
         return Reflect.get(target, prop, receiver)
       },
 
       set: (target, prop, value) => {
-        const oldValue = Reflect.get(target, prop)
-        
-        baseObj[prop] = value
-
-        // 重新监听新的对象
-        if (opt.deep) {
-          target[prop] = this.watch(baseObj[prop], opt, baseObj[prop])
-        }
-
         // 触发订阅
-        dep.notify(prop, oldValue, () => obj[prop])
+        dep.notify(prop, target[prop], () => obj[prop])
 
-        return Reflect.set(target, prop, value)
+        return Reflect.set(target, prop, opt.deep ? this.watch(value) : value)
       }
     })
   }

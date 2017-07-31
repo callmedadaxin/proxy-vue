@@ -33,8 +33,6 @@ const vm = new Vue({
     }
   },
   render (dom) {
-    console.log('render')
-
     return dom.div({
       class: 'test'
     },
@@ -45,13 +43,13 @@ const vm = new Vue({
         '$model': 'msg',
         type: 'text'
       }),
-      this.a.toString()
+      this.test.a.toString()
     )
   }
 })
 
-// vm.test = { a: 3 }
-// vm.test.d = 4
+vm.test = { a: 3 }
+vm.test.a = 4
 vm.a = 1
 vm.a = 2
 vm.a = 3
