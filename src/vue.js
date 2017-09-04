@@ -1,4 +1,4 @@
-import Observer from './data.js'
+import Watcher, { observify } from './data.js'
 import directive from './directive.js'
 import Dom from './dom.js'
 
@@ -7,8 +7,8 @@ class Vue {
     this._config = config
     this._ticks = []
     // 用来存储指令
-    this._initData(config.data)
     this._initVM()
+    this._initData(config.data)
     this._bindVM()
     this._appendDom()
 
@@ -21,10 +21,8 @@ class Vue {
    * @return {[type]}      [description]
    */
   _initData (data) {
-    const watcher = new Observer()
-    
-    this._data = watcher.watch(data(), { deep: true })
-    watcher.addWatcher(this._appendDom.bind(this))
+    this._data = observify(data())
+    // watcher.addWatcher(this._appendDom.bind(this))
   }
 
   /**

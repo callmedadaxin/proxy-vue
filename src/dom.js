@@ -1,4 +1,5 @@
 import { hasProperty } from './util.js'
+import Watcher from './data'
 import Vue from './vue.js'
 
 export default class Dom {
@@ -76,8 +77,17 @@ export default class Dom {
     const { _childrens, _elem } = this
     
     _childrens.forEach(children => {
-      const child = typeof children === 'string' ? document.createTextNode(children) : children
+      const child = typeof children === 'function' ? this._getDomContent(children, _elem) : children
       _elem.appendChild(child)
     })
+  }
+
+  _getDomContent (fn, _elem) {
+    let node = document.createTextNode(fn())
+    new Watcher(this._vm, fn, (val) => {
+      node.textContent = val
+    })
+    
+    return node
   }
 }

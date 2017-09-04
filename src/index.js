@@ -28,7 +28,8 @@ const vm = new Vue({
       test: {
         a: 1
       },
-      a: 'ssss',
+      a: 1,
+      b: 2,
       arr: [1, 2, 3]
     }
   },
@@ -38,12 +39,16 @@ const vm = new Vue({
     },
       dom.p({
         '@click': (e) => alert('you click this p node!')
-      }, this.msg),
+      }, () => {
+        return `a + b = ${this.a + this.b}`
+      }),
       dom.input({
         '$model': 'msg',
         type: 'text'
       }),
-      this.test.a.toString()
+      () => {
+        return this.test.a
+      }
     )
   }
 })
@@ -55,7 +60,6 @@ vm.a = 2
 vm.a = 3
 vm.a = 4
 vm.a = 5
-vm.msg = 'ssssss'
 
 // vm.arr[1] = 'sdfsdf'
 // vm.arr.push(1)
