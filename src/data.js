@@ -110,7 +110,6 @@ export default class Observer {
       set: (target, prop, value) => {
         // 触发订阅
         dep.notify(prop, target[prop], () => obj[prop])
-
         return Reflect.set(target, prop, opt.deep ? this.watch(value) : value)
       }
     })
