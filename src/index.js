@@ -3,22 +3,25 @@ import Vue from './vue.js'
 // v-model
 Vue.directive('model', {
   update (el, binding, vm) {
-    el.value = binding.value
+    console.log(binding.value)
+    el.value = vm[binding.value]
 
     el.addEventListener('input', e => {
-      binding.value = e.target.value
-
-      // 更新dom后，保持focus状态
-      this._focus = true
-    })
-
-    vm.nextTick(_ => {
-      if (this._focus) {
-        el.focus()
-      }
+      vm[binding.value] = e.target.value
     })
   }
 })
+
+// Vue.directive('if', {
+//   update (el, binding, vm) {
+//     const key = binding.value
+//     if (vm[key]) {
+//       el.style.display = 'inline-block'
+//     } else {
+//       el.style.display = 'none'
+//     }
+//   }
+// })
 
 const vm = new Vue({
   el: 'body',
@@ -30,7 +33,11 @@ const vm = new Vue({
       },
       a: 1,
       b: 2,
-      arr: [1, 2, 3]
+      arr: [1, 2, 3],
+      style: {
+        color: 'red'
+      },
+      showBtn: true
     }
   },
   render (dom) {
@@ -38,17 +45,14 @@ const vm = new Vue({
       class: 'test'
     },
       dom.p({
-        '@click': (e) => alert('you click this p node!')
+        '@click': (e) => alert('you click this p node!'),
       }, () => {
         return `a + b = ${this.a + this.b}`
       }),
       dom.input({
-        '$model': 'msg',
+        '$model': 'a',
         type: 'text'
-      }),
-      () => {
-        return this.test.a
-      }
+      })
     )
   }
 })

@@ -38,7 +38,7 @@ export default class Dom {
         if (attr.indexOf('@') === 0) {
           this._bindEvents(attr)
         } else if (attr.indexOf('$') === 0) {
-          this._bindDirectives(attr)
+          this._bindDirectives(attr, _elem)
         } else {
           _elem.setAttribute(attr, _attrs[attr])
         }
@@ -50,14 +50,22 @@ export default class Dom {
    * 指令
    * @return {[type]} [description]
    */
-  _bindDirectives (attr) {
-    const { _attrs, _elem, _vm } = this
+  _bindDirectives (attr, _elem) {
+    const { _attrs, _vm } = this
 
     // 绑定指令
     const directive = Vue._directors.get(attr)
-    directive.call(this, this._elem, {
+    const key = _attrs[attr]
+
+    // new Watcher(_vm, () => {
+    //   _vm[key]
+    // }, (val) => {
+      
+    // })
+
+    directive.call(this, _elem, {
       name: attr.substr(1),
-      value: _attrs[attr]
+      value: key
     }, _vm)
   }
 
@@ -77,7 +85,19 @@ export default class Dom {
     const { _childrens, _elem } = this
     
     _childrens.forEach(children => {
-      const child = typeof children === 'function' ? this._getDomContent(children, _elem) : children
+      const type = typeof children
+      let child
+
+      switch (type) {
+        case 'function': 
+          child = this._getDomContent(children, _elem)
+          break
+        case 'string':
+          child = document.createTextNode(children)
+          break
+        default:
+          child = children
+      }
       _elem.appendChild(child)
     })
   }
