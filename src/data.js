@@ -1,46 +1,6 @@
 import { isObject } from './util.js'
-
-let queue = new Set()
-
-function flushQueue (args) {
-  queue.forEach(fn => {
-    fn(args)
-    // 清空队列
-    queue = new Set()
-  })
-}
-
-function pushQueue (fn, args) {
-  queue.add(fn)
-  Promise.resolve().then(()=> flushQueue(args))
-}
-
-/**
- * 实现订阅及依赖收集
- */
-class Dep {
-  constructor() {
-    this._subscribes = new Map()
-  }
-
-  notify (prop) {
-    const subscribes = this._subscribes.get(prop)
-    if (subscribes) {
-      subscribes.forEach(subscribe => {
-        subscribe.update()
-      })
-    }
-  }
-
-  addSub (prop, subscribe) {
-    const subscribes = this._subscribes.get(prop)
-    if (subscribes) {
-      subscribes.push(subscribe)
-    } else {
-      this._subscribes.set(prop, [subscribe])
-    }
-  }
-}
+import Dep from './dep'
+import pushQueue from './batcher'
 
 /**
  * 将对象转为监听对象
@@ -85,14 +45,18 @@ function defineReactive (obj) {
  */
 export default class Watcher {
   constructor(vm, expFn, cb) {
-    this.expFn = expFn
-    this.cb = cb
     this.vm = vm
+    this.cb = cb
+    this.expFn = expFn
     this.value = this.subscribeAndGetVaule()
   }
 
   update () {
-    const val = this.expFn.call(this.vm)
+    pushQueue(this)
+  }
+
+  run () {
+    const val = this.get()
     this.cb.call(this.vm, val, this.value)
     this.value = val
   }
@@ -100,7 +64,26 @@ export default class Watcher {
   subscribeAndGetVaule () {
     // 暂存依赖
     Dep.target = this
-    this.value = this.expFn.call(this.vm)
+    this.value = this.get()
     Dep.target = null
+  }
+  /**
+   * 根据expFn获取对应的值
+   * 支持function, string
+   * function: () => vm.a + vm.b
+   * string: a.b
+   */
+  get () {
+    const fn = this.expFn
+    if (typeof fn === 'function') {
+      return fn.call(this.vm)
+    } else {
+      const expArr = fn.split('.')
+      let val = this.vm
+      expArr.forEach(prop => {
+        val = val[prop]
+      })
+      return val
+    }
   }
 }

@@ -1,28 +1,5 @@
 import Vue from './vue.js'
 
-// v-model
-Vue.directive('model', {
-  update (el, binding, vm) {
-    console.log(binding.value)
-    el.value = vm[binding.value]
-
-    el.addEventListener('input', e => {
-      vm[binding.value] = e.target.value
-    })
-  }
-})
-
-// Vue.directive('if', {
-//   update (el, binding, vm) {
-//     const key = binding.value
-//     if (vm[key]) {
-//       el.style.display = 'inline-block'
-//     } else {
-//       el.style.display = 'none'
-//     }
-//   }
-// })
-
 const vm = new Vue({
   el: 'body',
   data () {
@@ -50,20 +27,25 @@ const vm = new Vue({
         return `a + b = ${this.a + this.b}`
       }),
       dom.input({
-        '$model': 'a',
+        '$model': 'test.a',
         type: 'text'
-      })
+      }),
+      () => this.msg,
+      () => this.test.a
     )
   }
 })
 
-vm.test = { a: 3 }
-vm.test.a = 4
+// vm.test = { a: 3 }
+// vm.test.a = 4
 vm.a = 1
 vm.a = 2
 vm.a = 3
 vm.a = 4
 vm.a = 5
+vm.b = 10
+// vm.msg = 'sssss'
+// vm.msg = '2222'
 
 // vm.arr[1] = 'sdfsdf'
 // vm.arr.push(1)

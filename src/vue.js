@@ -1,8 +1,7 @@
 import Watcher, { observify } from './data.js'
-import directive from './directive.js'
 import Dom from './dom.js'
 
-class Vue {
+export default class MVVM {
   constructor(config) {
     this._config = config
     this._ticks = []
@@ -22,7 +21,6 @@ class Vue {
    */
   _initData (data) {
     this._data = observify(data())
-    // watcher.addWatcher(this._appendDom.bind(this))
   }
 
   /**
@@ -56,11 +54,7 @@ class Vue {
     const dom = new Dom(this._vm)
     const result = render(dom)
     // 替换节点
-    targetEl.replaceChild(result, this._oldDom || targetEl.childNodes[0])
-    this._oldDom = result
-
-    // 出发nextTick的回调
-    this._triggerTicks()
+    targetEl.appendChild(result)
   }
 
   /**
@@ -76,29 +70,4 @@ class Vue {
       }
     }
   }
-
-  /**
-   * 添加dom更新后的回调
-   */
-  nextTick (fn) {
-    this._ticks.push(fn)
-  }
-
-  /**
-   * 执行dom更新后的回调
-   */
-  _triggerTicks () {
-    setTimeout(_ => {
-      this._ticks.forEach(fn => {
-        typeof(fn) === 'function' && fn()
-      })
-
-      this._ticks = []
-    }, 0)
-  }
 }
-
-Vue._directors = new Map()
-Vue.directive = directive
-
-export default Vue

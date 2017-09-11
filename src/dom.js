@@ -2,6 +2,64 @@ import { hasProperty } from './util.js'
 import Watcher from './data'
 import Vue from './vue.js'
 
+const updater = {
+  text (node, value) {
+    node.textContent = typeof value === 'undefined' ? '' : value
+  },
+  model (node, value) {
+    node.value = typeof value === 'undefined' ? '' : value
+  }
+}
+
+const compileUtil = {
+  /**
+   * 统一绑定watcher
+   */
+  bind (node, vm, exp, type) {
+    const update = updater[type]
+
+    update && update(node, this.getVal(vm, exp))
+
+    new Watcher(vm, exp, (value) => {
+      update && update(node, this.getVal(vm, exp))
+    })
+  },
+  text (node, vm, exp) {
+    
+  },
+  model (node, vm, exp) {
+    this.bind(node, vm, exp, 'model')
+
+    node.addEventListener('input', (e) => {
+      const value = e.target.value
+      updater.model(node, value)
+      this.setVal(vm, exp, value)
+    })
+  },
+  getVal (vm, exp) {
+    // 解析a.b.c这种
+    const expArr = exp.split('.')
+    let val = vm
+
+    expArr.forEach(prop => {
+      val = val[prop]
+    })
+    return val
+  },
+  setVal (vm, exp, value) {
+    let val = vm
+    const expArr = exp.split('.')
+    const len = expArr.length
+    expArr.forEach((key, index) => {
+      if (index >= len - 1) {
+        val[key] = value
+      } else {
+        val = val[key]
+      }
+    })
+  }
+}
+
 export default class Dom {
   constructor (vm) {
     // 确定每次节点都能访问到vm实例
@@ -54,19 +112,9 @@ export default class Dom {
     const { _attrs, _vm } = this
 
     // 绑定指令
-    const directive = Vue._directors.get(attr)
-    const key = _attrs[attr]
-
-    // new Watcher(_vm, () => {
-    //   _vm[key]
-    // }, (val) => {
-      
-    // })
-
-    directive.call(this, _elem, {
-      name: attr.substr(1),
-      value: key
-    }, _vm)
+    const exp = _attrs[attr]
+    const type = attr.slice(1)
+    compileUtil[type] && compileUtil[type](_elem, this._vm, exp)
   }
 
   /**
