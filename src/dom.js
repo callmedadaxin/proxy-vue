@@ -1,4 +1,4 @@
-import { hasProperty } from './util.js'
+import { hasProperty, toKebabCase } from './util.js'
 import Watcher from './data'
 import Vue from './vue.js'
 
@@ -8,6 +8,23 @@ const updater = {
   },
   model (node, value) {
     node.value = typeof value === 'undefined' ? '' : value
+  },
+  html (node, value) {
+    node.innerHTML = typeof value === 'undefined' ? '' : value
+  },
+  attr (node, value, attr) {
+    let ret = ''
+    if (!value) {
+      ret = ''
+    } else if (attr === 'style') {
+      for (let name of Object.keys(value)) {
+        ret += `${toKebabCase(name)}: ${value[name]};`
+      }
+    } else if (attr === 'class') {
+
+    }
+
+    node.setAttribute(attr, ret)
   }
 }
 
@@ -15,28 +32,37 @@ const compileUtil = {
   /**
    * 统一绑定watcher
    */
-  bind (node, vm, exp, type) {
+  bind ({node, vm, exp, type, attr}) {
     const update = updater[type]
 
-    update && update(node, this.getVal(vm, exp))
+    update && update(node, this.getVal(vm, exp), attr)
 
     new Watcher(vm, exp, (value) => {
-      update && update(node, this.getVal(vm, exp))
+      update && update(node, value, attr)
     })
   },
   text (node, vm, exp) {
-    
+    this.bind({node, vm, exp, type: 'text'})
+  },
+  html (node, vm, exp) {
+    this.bind({node, vm, exp, type: 'html'})
+  },
+  attr (node, vm, exp, attr) {
+    this.bind({node, vm, exp, type: 'attr', attr})
   },
   model (node, vm, exp) {
-    this.bind(node, vm, exp, 'model')
+    this.bind({node, vm, exp, type: 'model'})
 
     node.addEventListener('input', (e) => {
       const value = e.target.value
-      updater.model(node, value)
       this.setVal(vm, exp, value)
     })
   },
   getVal (vm, exp) {
+    if (typeof exp === 'function') {
+      return exp.call(vm)
+    }
+
     // 解析a.b.c这种
     const expArr = exp.split('.')
     let val = vm
@@ -87,16 +113,17 @@ export default class Dom {
    * @return {[type]} [description]
    */
   _bindAttrs () {
-    const { _attrs, _elem } = this
+    const { _attrs, _elem, _vm } = this
 
     for (let attr in _attrs) {
       if (hasProperty(_attrs, attr)) {
-
         // 事件绑定
         if (attr.indexOf('@') === 0) {
           this._bindEvents(attr)
         } else if (attr.indexOf('$') === 0) {
           this._bindDirectives(attr, _elem)
+        } else if (attr.indexOf(':') === 0) {
+          compileUtil.attr(_elem, _vm, _attrs[attr], attr.slice(1))
         } else {
           _elem.setAttribute(attr, _attrs[attr])
         }
@@ -114,7 +141,11 @@ export default class Dom {
     // 绑定指令
     const exp = _attrs[attr]
     const type = attr.slice(1)
-    compileUtil[type] && compileUtil[type](_elem, this._vm, exp)
+
+    if (!compileUtil[type]) {
+      throw new Error('cannot find directive of ' + attr )
+    }
+    compileUtil[type](_elem, _vm, exp)
   }
 
   /**
@@ -130,7 +161,7 @@ export default class Dom {
    * 渲染子节点
    */
   _addChildrens () {
-    const { _childrens, _elem } = this
+    const { _childrens, _elem, _vm } = this
     
     _childrens.forEach(children => {
       const type = typeof children
@@ -138,7 +169,8 @@ export default class Dom {
 
       switch (type) {
         case 'function': 
-          child = this._getDomContent(children, _elem)
+          child = document.createTextNode('')
+          compileUtil.text(child, _vm, children)
           break
         case 'string':
           child = document.createTextNode(children)
@@ -148,14 +180,5 @@ export default class Dom {
       }
       _elem.appendChild(child)
     })
-  }
-
-  _getDomContent (fn, _elem) {
-    let node = document.createTextNode(fn())
-    new Watcher(this._vm, fn, (val) => {
-      node.textContent = val
-    })
-    
-    return node
   }
 }

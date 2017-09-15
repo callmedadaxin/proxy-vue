@@ -12,7 +12,8 @@ const vm = new Vue({
       b: 2,
       arr: [1, 2, 3],
       style: {
-        color: 'red'
+        color: 'red',
+        fontSize: '24px'
       },
       showBtn: true
     }
@@ -25,6 +26,14 @@ const vm = new Vue({
         '@click': (e) => alert('you click this p node!'),
       }, () => {
         return `a + b = ${this.a + this.b}`
+      }),
+      dom.p({
+        ':style': 'style',
+        ':name': 'test.a',
+        '$text': 'test.a'
+      }),
+      dom.p({
+        '$html': () => `<a href="https://www.baidu.com">${this.test.a}</a>`
       }),
       dom.input({
         '$model': 'test.a',
