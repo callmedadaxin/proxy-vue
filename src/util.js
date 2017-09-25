@@ -11,5 +11,5 @@ export const toCamelCase = str => {
 }
 
 export const toKebabCase = str => {
-  return str.replace(/[A-Z]/g, '-$1').toLowerCase()
+  return str.replace(/[A-Z]/g, (letter) => `-${letter}`).toLowerCase()
 }

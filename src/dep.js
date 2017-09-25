@@ -1,8 +1,10 @@
 /**
  * 实现订阅
  */
+let id = 0
 export default class Dep {
   constructor() {
+    this.id = ++id
     this._subscribes = new Map()
   }
 

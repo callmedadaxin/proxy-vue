@@ -20,14 +20,28 @@ export const observify = (obj) => {
 }
 
 function defineReactive (obj) {
-  const dep = new Dep()
+  const dep = obj.__dep__ ? obj.__dep : new Dep()
   
   return new Proxy(obj, {
     get: (target, prop, receiver) => {
+      // 添加'__dep__'属性
+      if (prop === '__dep__') {
+        return dep
+      }
+
       // 为每个属性订阅自己的事件
       if (Dep.target) {
         dep.addSub(prop, Dep.target)
+
+        // 同时监听下一级别，用于class/style等
+        const child = target[prop]
+        if (isObject(child)) {
+          for (let key of Object.keys(child)) {
+            child.__dep__.addSub(key, Dep.target)
+          }
+        }
       }
+      
       return Reflect.get(target, prop, receiver)
     },
 
@@ -44,11 +58,12 @@ function defineReactive (obj) {
  * 简单实现data的读写监听
  */
 export default class Watcher {
-  constructor(vm, expFn, cb) {
+  constructor(vm, expFn, cb, deep) {
     this.vm = vm
     this.cb = cb
     this.expFn = expFn
-    this.value = this.subscribeAndGetVaule()
+    this.deep = deep
+    this.value = this.get()
   }
 
   update () {
@@ -61,12 +76,11 @@ export default class Watcher {
     this.value = val
   }
 
-  subscribeAndGetVaule () {
-    // 暂存依赖
-    Dep.target = this
-    this.value = this.get()
-    Dep.target = null
-  }
+  // subscribeAndGetVaule () {
+  //   // 暂存依赖
+  //   Dep.target = this
+  //   this.value = this.get()
+  // }
   /**
    * 根据expFn获取对应的值
    * 支持function, string
@@ -76,14 +90,39 @@ export default class Watcher {
   get () {
     const fn = this.expFn
     if (typeof fn === 'function') {
+      Dep.target = this
       return fn.call(this.vm)
+      Dep.target = null
     } else {
       const expArr = fn.split('.')
       let val = this.vm
-      expArr.forEach(prop => {
+      expArr.forEach((prop, index) => {
+        if (index === expArr.length - 1) {
+          Dep.target = this
+        }
         val = val[prop]
       })
+
+      // 深度监听，则依次触发value的getter,递归手机依赖
+      if (this.deep) {
+        this.deepSuscribe(val)
+      }
+      Dep.target = null
       return val
+    }
+  }
+  /**
+   * 深度监听
+   * 其实就是将值深度获取一遍，触发getter
+   * 就会将watcher添加到ge
+   */
+  deepSuscribe (value) {
+    if (!isObject(value)) {
+      return
+    }
+
+    for (let key of Object.keys(value)) {
+      this.deepSuscribe(value[key])
     }
   }
 }

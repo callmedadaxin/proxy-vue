@@ -1,5 +1,28 @@
 import Vue from './vue.js'
+import Watcher, { observify } from './data.js'
 
+var obj = observify({
+  a: {
+    b: {
+      c: 1
+    }
+  }
+})
+
+new Watcher(obj, 'a', (value) => {
+  console.log('发生了改变', value)
+})
+
+new Watcher(obj, 'a', (value) => {
+  console.log('a的某个属性发生了改变', value)
+}, true)
+
+
+// obj.a.b = {
+//   c: 'ssss'
+// }
+
+obj.a.b.c = 3
 const vm = new Vue({
   el: 'body',
   data () {
@@ -12,7 +35,7 @@ const vm = new Vue({
       b: 2,
       arr: [1, 2, 3],
       style: {
-        color: 'red',
+        color: '#ff0000',
         fontSize: '24px'
       },
       showBtn: true
@@ -32,6 +55,16 @@ const vm = new Vue({
         ':name': 'test.a',
         '$text': 'test.a'
       }),
+      // dom.p({
+      //   ':style': {
+      //     color: () => this.style.color,
+      //     fontSize: () => this.style.fontSize
+      //   }
+      // }, 'sdfsdfsdf'),
+      dom.input({
+        '$model': 'style.color',
+        'type': 'color'
+      }),
       dom.p({
         '$html': () => `<a href="https://www.baidu.com">${this.test.a}</a>`
       }),
@@ -45,14 +78,14 @@ const vm = new Vue({
   }
 })
 
-// vm.test = { a: 3 }
-// vm.test.a = 4
-vm.a = 1
-vm.a = 2
-vm.a = 3
-vm.a = 4
-vm.a = 5
-vm.b = 10
+// // vm.test = { a: 3 }
+// // vm.test.a = 4
+// vm.a = 1
+// vm.a = 2
+// vm.a = 3
+// vm.a = 4
+// vm.a = 5
+// vm.b = 10
 // vm.msg = 'sssss'
 // vm.msg = '2222'
 

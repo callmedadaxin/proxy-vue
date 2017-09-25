@@ -1,4 +1,4 @@
-import { hasProperty, toKebabCase } from './util.js'
+import { hasProperty, toKebabCase, isObject } from './util.js'
 import Watcher from './data'
 import Vue from './vue.js'
 
@@ -13,17 +13,17 @@ const updater = {
     node.innerHTML = typeof value === 'undefined' ? '' : value
   },
   attr (node, value, attr) {
-    let ret = ''
+    let ret = value
     if (!value) {
       ret = ''
     } else if (attr === 'style') {
+      ret = ''
       for (let name of Object.keys(value)) {
         ret += `${toKebabCase(name)}: ${value[name]};`
       }
     } else if (attr === 'class') {
 
     }
-
     node.setAttribute(attr, ret)
   }
 }
