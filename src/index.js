@@ -55,12 +55,12 @@ const vm = new Vue({
         ':name': 'test.a',
         '$text': 'test.a'
       }),
-      // dom.p({
-      //   ':style': {
-      //     color: () => this.style.color,
-      //     fontSize: () => this.style.fontSize
-      //   }
-      // }, 'sdfsdfsdf'),
+      dom.p({
+        ':style': {
+          color: () => this.style.color,
+          fontSize: () => this.style.fontSize
+        }
+      }, 'sdfsdfsdf'),
       dom.input({
         '$model': 'style.color',
         'type': 'color'

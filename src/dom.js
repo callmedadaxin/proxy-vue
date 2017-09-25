@@ -1,4 +1,4 @@
-import { hasProperty, toKebabCase, isObject } from './util.js'
+import { hasProperty, toKebabCase, isObject, isFunction, isString } from './util.js'
 import Watcher from './data'
 import Vue from './vue.js'
 
@@ -34,12 +34,28 @@ const compileUtil = {
    */
   bind ({node, vm, exp, type, attr}) {
     const update = updater[type]
+    let ret = this.getVal(vm, exp)
 
-    update && update(node, this.getVal(vm, exp), attr)
+    update && update(node, ret, attr)
 
-    new Watcher(vm, exp, (value) => {
-      update && update(node, value, attr)
-    })
+    /**
+     * 针对:style = {
+     *   fontSize: () => this.size
+     * }
+     * 这种，为每个属性增加watcher
+     */
+    if (isObject(exp)) {
+      for (let key of Object.keys(exp)) {
+        new Watcher(vm, exp[key], (value) => {
+          ret[key] = value
+          update && update(node, ret, attr)
+        })
+      }
+    } else {
+      new Watcher(vm, exp, (value) => {
+        update && update(node, value, attr)
+      })
+    }
   },
   text (node, vm, exp) {
     this.bind({node, vm, exp, type: 'text'})
@@ -59,8 +75,18 @@ const compileUtil = {
     })
   },
   getVal (vm, exp) {
-    if (typeof exp === 'function') {
+    // 解析函数
+    if (isFunction(exp)) {
       return exp.call(vm)
+    }
+
+    // 解析对象
+    if (isObject(exp)) {
+      let ret = {}
+      for (let key of Object.keys(exp)) {
+        ret[key] = isString(exp[key]) ? exp[key] : this.getVal(vm, exp[key])
+      }
+      return ret
     }
 
     // 解析a.b.c这种
