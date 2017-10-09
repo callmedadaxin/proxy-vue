@@ -1,6 +1,5 @@
 import MVVM from './vue.js'
 import Watcher, { observify } from './data.js'
-import './test.css'
 
 var obj = observify({
   a: {
@@ -39,12 +38,18 @@ const vm = new MVVM({
         color: '#ff0000',
         fontSize: '24px'
       },
+      fontSize: 24,
       showBtn: true,
       class: {
         class1: true,
         class2: false
       },
       testClass: true
+    }
+  },
+  computed: {
+    resultSize () {
+      return `${parseInt(this.fontSize) + 2}px`
     }
   },
   render (dom) {
@@ -66,14 +71,17 @@ const vm = new MVVM({
       dom.p({
         ':style': {
           color: () => this.style.color,
-          fontSize: () => this.style.fontSize
+          fontSize: () => this.resultSize
         },
         ':class': {
           'class2': () => this.testClass
         }
       }, 'sdfsdfsdf'),
       dom.button({
-        '@click': () => this.testClass = !this.testClass
+        '@click': () => {
+          this.testClass = !this.testClass
+          this.fontSize += 2
+        }
       }, '点击修改class'),
       dom.input({
         '$model': 'style.color',

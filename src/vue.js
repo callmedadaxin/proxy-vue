@@ -1,5 +1,6 @@
 import Watcher, { observify } from './data.js'
 import Dom from './dom.js'
+import { foreach } from './util'
 
 export default class MVVM {
   constructor(config) {
@@ -8,12 +9,13 @@ export default class MVVM {
     // 用来存储指令
     this._initVM()
     this._initData(config.data)
+    this._initComputed()
     this._bindVM()
     this._appendDom()
 
     return this._vm
   }
-
+ 
   /**
    * 初始化data为observable
    * @param  {[type]} data [description]
@@ -23,13 +25,27 @@ export default class MVVM {
     this._data = observify(data())
   }
 
+  _initComputed () {
+    const { _config, _vm } = this
+
+    this._computed = {}
+
+    foreach(_config.computed, (expFn, name) => {
+      this._computed[name] = expFn.call(_vm)
+
+      new Watcher(_vm, expFn, val => {
+        this._computed[name] = val
+      })
+    })
+  }
+
   /**
    * 将_vm与data进行绑定，访问_vm时，可直接访问到data上的属性
    */
   _initVM () {
     this._vm = new Proxy(this, {
       get: (target, prop, receiver) => {
-        return this[prop] || this._data[prop]
+        return this[prop] || this._data[prop] || this._computed[prop]
       },
 
       set: (target, prop, value) => {
