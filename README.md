@@ -12,7 +12,7 @@
 - [x] 简单模板渲染
 - [x] 节点响应数据更新
 - [x] 双向数据绑定
-- [ ] style/class绑定
+- [x] style/class绑定
 - [ ] computed\watch整合
 - [ ] directive指令
 - [ ] v-bind/v-if/v-for等简单指令
