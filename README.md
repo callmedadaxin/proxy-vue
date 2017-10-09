@@ -83,6 +83,61 @@ obj.c = 10 // 并不会被触发
 ```
 
 ### 4.异步更新队列
+将同一事件循环的更新放到一个队列里进行缓冲，在下一事件循环同一执行，避免重复操作dom。
 
+```
+new Watcher(obj, () => {
+  return obj.a + obj.b
+}, (newVal, oldVal) => {
+  console.log(`结果更新了，新值为：${newVal}, 旧值为：${oldVal}`)
+})
 
+obj.a = 1
+obj.a = 2
+obj.a = 3 // 仅在此处输出
+```
+
+### 5.深度监听
+针对对象可以进行深度监听，当子对象变化时，父级可以检测到变化
+
+```
+let obj = observify({
+  a: {
+    b: {
+      c: 1
+    }
+  }
+})
+
+new Watcher(obj, 'a', (value) => {
+  console.log('a的某个属性发生了改变', value)
+}, true)
+
+obj.a.b.c = 3 // 可以追踪到a属性发生了变化
+```
+
+### 6.简单模板渲染
+实现简单的模板渲染功能
+
+```
+let vm = new MVVM({
+  el: 'body',
+  data () {
+    return {
+      msg: 'hello world'
+    }
+  },
+  render (dom) {
+    return dom.p(
+      {},
+      dom.a(
+        {
+          href: 'https://www.baidu.com'
+        },
+        () => this.msg // 指向vm
+      )
+    )
+  }
+})
+```
 

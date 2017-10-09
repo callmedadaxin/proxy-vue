@@ -1,5 +1,6 @@
-import Vue from './vue.js'
+import MVVM from './vue.js'
 import Watcher, { observify } from './data.js'
+import './test.css'
 
 var obj = observify({
   a: {
@@ -23,7 +24,7 @@ new Watcher(obj, 'a', (value) => {
 // }
 
 obj.a.b.c = 3
-const vm = new Vue({
+const vm = new MVVM({
   el: 'body',
   data () {
     return {
@@ -38,7 +39,12 @@ const vm = new Vue({
         color: '#ff0000',
         fontSize: '24px'
       },
-      showBtn: true
+      showBtn: true,
+      class: {
+        class1: true,
+        class2: false
+      },
+      testClass: true
     }
   },
   render (dom) {
@@ -46,11 +52,13 @@ const vm = new Vue({
       class: 'test'
     },
       dom.p({
+        'class': 'class1',
         '@click': (e) => alert('you click this p node!'),
       }, () => {
         return `a + b = ${this.a + this.b}`
       }),
       dom.p({
+        ':class': 'class',
         ':style': 'style',
         ':name': 'test.a',
         '$text': 'test.a'
@@ -59,8 +67,14 @@ const vm = new Vue({
         ':style': {
           color: () => this.style.color,
           fontSize: () => this.style.fontSize
+        },
+        ':class': {
+          'class2': () => this.testClass
         }
       }, 'sdfsdfsdf'),
+      dom.button({
+        '@click': () => this.testClass = !this.testClass
+      }, '点击修改class'),
       dom.input({
         '$model': 'style.color',
         'type': 'color'

@@ -18,11 +18,22 @@ const updater = {
       ret = ''
     } else if (attr === 'style') {
       ret = ''
+      // 解析style对象
       for (let name of Object.keys(value)) {
         ret += `${toKebabCase(name)}: ${value[name]};`
       }
     } else if (attr === 'class') {
+      ret = ''
 
+      // 解析class字符串
+      if (isString(value)) {
+        ret = value
+      } else {
+        // 解析class对象，当属性为true添加class
+        for (let name of Object.keys(value)) {
+          ret += value[name] ? `${name} `: ''
+        }
+      }
     }
     node.setAttribute(attr, ret)
   }
